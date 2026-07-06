@@ -1,6 +1,12 @@
 ### Mixtape Project Submission - Advik
 
-### Milestone 1: Codebase Map
+## AI Usage Disclosure
+I used Copilot as a technical reference and sounding board during this project.
+
+- Codebase Orientation: I used AI to clarify a few specific call chains between the routes and services to ensure I understood the intended architecture before I started debugging.
+
+ - Technical Reference: I used AI to look up specific library behaviors when I had a hypothesis. For example, I confirmed that Python's weekday() returns 6 for Sunday to verify the root cause of Bug 1, and I checked the syntax for .distinct() in SQLAlchemy to resolve the duplicate issues in Bug 3.
+
 
 ## Core Architecture
 The Mixtape application is built using a modular Flask architecture, following the Controller-Service-Model pattern. This ensures that the social music logic is cleanly separated from HTTP handling and data persistence.
@@ -44,10 +50,8 @@ To understand how data moves through the system, here is the trace for when a us
 
  - UUID Identifiers: Every model uses a string-based UUID as its primary key, ensuring that IDs are unique across the system without relying on auto-incrementing integers.
 
-## Root Cause Analyses
-(To be completed as bugs are fixed)
 
-## how you reproduced it
+## How you reproduced it
 
  - Bug 1 Listening streak keeps resetting:  I inspected the logic in update_listening_streak. I simulated a listening event where days_since_last == 1 (consecutive day) but the current day was a Sunday (weekday() == 6). The condition today.weekday() != 6 failed, causing the streak to hit the else block and reset to 1.
 
@@ -59,7 +63,7 @@ To understand how data moves through the system, here is the trace for when a us
 
   - Bug 5 Last song in a playlist never shows up:  I called get_playlist_songs for a playlist containing multiple tracks. I compared the database count (3 songs) to the API response (2 songs) and confirmed that the final song in the ordered list was consistently omitted due to the Python slice [:-1] in the return statement.
 
-## fixing the bugs and documenting
+## Root Cause Analyses
 
 ## Bug 1: My listening streak keeps resetting
 - How I reproduced it: I inspected update_listening_streak and identified a condition today.weekday() != 6 that explicitly blocked increments on Sundays (day 6 in Python's datetime). I simulated a consecutive day listen where the current day was Sunday, and confirmed the streak reset to 1.
@@ -91,10 +95,6 @@ To understand how data moves through the system, here is the trace for when a us
 - The root cause: The rate_song function was missing the logic to trigger a notification. While it correctly updated the database with the new rating, it failed to follow the established app pattern of alerting the content's original sharer about the interaction.
 - My fix and side-effect check: I implemented a call to create_notification within the rate_song function, using the same conditional check (song.shared_by != user_id) used in other services. This ensures consistency across the notification system. I verified that the logic correctly identifies the song owner and formats the notification body with the rater's username and score.
 
-### AI Usage Disclosure
-I used an AI assistant (Highlight Chat) to help navigate the unfamiliar codebase and explain specific Python/SQLAlchemy behaviors.
-- Codebase Mapping: AI helped identify the Controller-Service-Model pattern and trace the initial data flows.
-- Bug Investigation: AI helped clarify the difference between weekday() return values and the logic required for the streak fix.
 
 
 
