@@ -91,6 +91,11 @@ To understand how data moves through the system, here is the trace for when a us
 - The root cause: The rate_song function was missing the logic to trigger a notification. While it correctly updated the database with the new rating, it failed to follow the established app pattern of alerting the content's original sharer about the interaction.
 - My fix and side-effect check: I implemented a call to create_notification within the rate_song function, using the same conditional check (song.shared_by != user_id) used in other services. This ensures consistency across the notification system. I verified that the logic correctly identifies the song owner and formats the notification body with the rater's username and score.
 
+### AI Usage Disclosure
+I used an AI assistant (Highlight Chat) to help navigate the unfamiliar codebase and explain specific Python/SQLAlchemy behaviors.
+- Codebase Mapping: AI helped identify the Controller-Service-Model pattern and trace the initial data flows.
+- Bug Investigation: AI helped clarify the difference between weekday() return values and the logic required for the streak fix.
+
 
 
 
